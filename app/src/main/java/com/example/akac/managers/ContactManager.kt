@@ -1,3 +1,5 @@
+package com.example.akac.managers
+
 import android.content.ContentResolver
 import android.content.Context
 import android.database.Cursor
@@ -28,7 +30,7 @@ class ContactManager(context: Context) {
                 val phone = getPhoneNumber(contactI)
 
                 if (!phone.isNullOrBlank()) {
-                    contacts.add(Contact(name, phone))
+                    contacts.add(Contact(name, phone, contactI))
                 }
             }
         }

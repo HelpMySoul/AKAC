@@ -1,3 +1,5 @@
+package com.example.akac
+
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -7,9 +9,10 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.akac.R
-import com.example.akac.adapters.ContactAdap
+import com.example.akac.adapters.ContactAdapter
+import com.example.akac.classes.ContactListItem
 import com.example.akac.data.Contact
+import com.example.akac.managers.ContactManager
 import kotlinx.coroutines.*
 
 class MainActivity : AppCompatActivity() {
@@ -17,7 +20,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var rv: RecyclerView
     private lateinit var cm: ContactManager
 
-    private val contactsList          = mutableListOf<Contact>()
     private val permissionRequestCode = 100
 
 
@@ -67,11 +69,27 @@ class MainActivity : AppCompatActivity() {
     private fun loadContacts() {
         CoroutineScope(Dispatchers.IO).launch {
             val contacts = cm.getContacts()
+            val sectionedList = buildList(contacts)
             withContext(Dispatchers.Main) {
-                contactsList.clear()
-                contactsList.addAll(contacts)
-                rv.adapter = ContactAdap(this@MainActivity, contactsList)
+                rv.adapter = ContactAdapter(this@MainActivity, sectionedList)
             }
         }
+    }
+
+    private fun buildList(contacts: List<Contact>): List<ContactListItem> {
+        val sorted = contacts.sortedBy {
+            it.text.lowercase()
+        }
+
+        val grouped = sorted.groupBy {
+            it.text.firstOrNull()?.uppercase() ?: "#"
+        }
+
+        val result = mutableListOf<ContactListItem>()
+        for ((letter, contactsInGroup) in grouped.toSortedMap()) {
+            result.add(ContactListItem.Header(letter))
+            result.addAll(contactsInGroup.map { ContactListItem.ContactItem(it) })
+        }
+        return result
     }
 }

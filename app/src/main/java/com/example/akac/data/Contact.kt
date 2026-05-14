@@ -1,4 +1,7 @@
 package com.example.akac.data
 
-data class Contact(val text:        String,
-                   val phoneNum:    String)
+data class Contact(
+    val text:      String,
+    val phoneNum:  String,
+    val contactId: String,
+)
